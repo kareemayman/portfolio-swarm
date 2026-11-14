@@ -1,0 +1,169 @@
+.wrap {
+  display: grid;
+  gap: 16px;
+}
+
+.heading {
+  font: 800 clamp(34px, 5vw, 58px) / 1 var(--f-display);
+  letter-spacing: -0.035em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.intro {
+  margin: 0 0 28px;
+  color: var(--ink-2);
+  font-weight: 300;
+  max-width: 38em;
+}
+
+/* The console stays a dark terminal in both themes, so it carries its own tokens. */
+.console {
+  --bg: #050506;
+  --s1: #0b0b0c;
+  --s2: #141416;
+  --line: #2a2a2d;
+  --line-2: #1c1c1f;
+  --ink: #f3f1ee;
+  --ink-2: #a8a5a1;
+  --ink-3: #6e6b68;
+  --fe: #6ea8ff;
+  --be: #ff1e56;
+  --ai: #ffac41;
+  --ok: #3ddc84;
+  --on-agent: #000000;
+  color-scheme: dark;
+
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 780px;
+  font: 400 13.5px/1.7 var(--f-mono);
+  min-width: 0;
+}
+
+:global(:root[data-theme="light"]) .console {
+  border-color: #1c1c1f;
+  box-shadow: 0 24px 60px rgba(20, 16, 12, 0.18);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line-2);
+  font-size: 12px;
+  color: var(--ink-3);
+  flex-wrap: wrap;
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line);
+  display: block;
+}
+
+.meta {
+  margin-left: auto;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.body {
+  height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px 16px 6px;
+  scrollbar-width: thin;
+}
+
+.line {
+  margin: 0 0 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--ink-2);
+}
+
+.line b {
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line-2);
+}
+
+.input label {
+  color: var(--be);
+  white-space: nowrap;
+}
+
+.input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  color: var(--ink);
+  caret-color: var(--ai);
+}
+
+.input input::placeholder {
+  color: var(--ink-3);
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestions button {
+  border: 1px dashed var(--line);
+  background: none;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: 400 12px/1 var(--f-mono);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.suggestions button:enabled:hover {
+  color: var(--ink);
+  border-color: var(--ink-3);
+}
+
+.suggestions button:disabled {
+  cursor: default;
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+@media (max-width: 820px) {
+  .body {
+    height: 400px;
+  }
+}
