@@ -1,0 +1,121 @@
+/* Design tokens and the few element-level rules every page shares.
+   Dark is the default for every visitor; light is opt-in through the toggle.
+   Every color in a component comes from here. */
+
+:root {
+  --bg: #000000;
+  --s1: #0b0b0c;
+  --s2: #141416;
+  --line: #2a2a2d;
+  --line-2: #1c1c1f;
+  --ink: #f3f1ee;
+  --ink-2: #a8a5a1;
+  --ink-3: #6e6b68;
+  --fe: #6ea8ff; /* frontend agent */
+  --be: #ff1e56; /* backend agent */
+  --ai: #ffac41; /* ai agent */
+  --ok: #3ddc84; /* status only */
+  --on-agent: #000000; /* text on cursor name tags and size badges */
+  --pop-bg: #0f0f11;
+  --glass: rgba(11, 11, 12, 0.86);
+
+  /* The --font-* variables are set on <html> by next/font in the root layout. */
+  --f-display: var(--font-raleway), "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: var(--font-merriweather), Georgia, serif;
+  --f-mono: var(--font-space-mono), ui-monospace, Menlo, Consolas, monospace;
+  --f-draft: "Times New Roman", Times, serif; /* the "before" font in the hero swap */
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #f6f5f3;
+  --s1: #ffffff;
+  --s2: #eeedea;
+  --line: #d9d6d2;
+  --line-2: #e6e3df;
+  --ink: #0d0d0e;
+  --ink-2: #4c4946;
+  --ink-3: #75716d;
+  --fe: #2563eb;
+  --be: #e0004a;
+  --ai: #c26a00;
+  --ok: #16a34a;
+  --on-agent: #ffffff;
+  --pop-bg: #ffffff;
+  --glass: rgba(255, 255, 255, 0.86);
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  transition: background-color 0.2s;
+}
+
+/* Covers the notch area so page content never shows through above the sticky bars. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 31;
+  background: var(--bg);
+}
+
+::selection {
+  background: var(--be);
+  color: var(--on-agent);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ai);
+  outline-offset: 3px;
+}
+
+/* The theme switch draws its own circular reveal, so the default cross-fade is off. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
