@@ -1,0 +1,61 @@
+.wrap {
+  overflow-x: auto;
+  min-width: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  position: relative;
+}
+
+.arch {
+  position: relative;
+  height: 340px;
+  min-width: 680px;
+  background-image: radial-gradient(var(--line-2) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.edge {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  overflow: visible;
+}
+
+.edge path {
+  fill: none;
+  stroke: var(--ink-2);
+  stroke-width: 1.4;
+}
+
+.arrow {
+  position: absolute;
+  width: 9.8px;
+  height: 9.8px;
+}
+
+.arrow path {
+  fill: var(--ink-2);
+}
+
+.node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--c);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--s1);
+  z-index: 1;
+}
+
+.node b {
+  display: block;
+  font: 700 12.5px/1.25 var(--f-mono);
+  color: var(--ink);
+}
+
+.node span {
+  display: block;
+  font: 400 11px/1.35 var(--f-mono);
+  color: var(--ink-3);
+  margin-top: 3px;
+}
