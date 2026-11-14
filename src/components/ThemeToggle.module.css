@@ -1,0 +1,30 @@
+/* `button.` so this wins over the shared button padding whatever order the CSS loads in. */
+button.toggle {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  justify-content: center;
+}
+
+.toggle svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* Dark shows the sun (switch to light); light shows the moon. */
+.sun {
+  display: block;
+}
+
+.moon {
+  display: none;
+}
+
+:global(:root[data-theme="light"]) .sun {
+  display: none;
+}
+
+:global(:root[data-theme="light"]) .moon {
+  display: block;
+}
