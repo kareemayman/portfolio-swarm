@@ -15,7 +15,18 @@ Kareem Ayman's portfolio. Three agent cursors (`fe`, `be`, `ai`) build each sect
 
 Build one milestone at a time in the order of handoff section 13, and stop for review after each one.
 
-Current milestone: **1, static site (not started)**. The repo is the bare `create-next-app` empty template. Update this line when a milestone is approved.
+Current milestone: **1, static site: built, waiting for Kareem's review and the Vercel deploy.** Update this line when a milestone is approved.
+
+Milestone 1 deliberately leaves these for the milestone that owns them:
+
+- Work index filters, hover previews and the project-page overlay (4). Cards and rows are plain links to `/work/[slug]`.
+- The agent console (5). It is markup with disabled controls and says it is offline. No guard count or source count is shown, because those would be invented numbers.
+- Project media (4). `ProjectArt` draws placeholder SVG screens ported from the prototype's canvas art; `poster` is optional in the schema until recordings exist. The two confidential projects keep illustrative art for good.
+- The `/` shortcut hinted in the nav (5).
+
+### Planned beyond the handoff
+
+- **Smooth scrolling, with Lenis or something like it.** Kareem asked for this on 2026-11-13; it has no milestone yet. Decide where it goes before the engine work in milestone 2, because it touches the same ground: the engine reads `scrollX`/`scrollY` and uses an `IntersectionObserver`, `html { scroll-behavior: smooth }` and the `#section` links would have to hand over to the library, the nested scrollers (console log, architecture frame, heat grid, project overlay) must be excluded, and it has to switch off under `prefers-reduced-motion`.
 
 ## Commands
 
@@ -40,10 +51,13 @@ The handoff writes `app/...`; this repo uses a `src/` directory.
 | `app/layout.tsx`, `app/work/[slug]`, `app/@modal/(.)work/[slug]` | `src/app/...` |
 | `src/swarm/` (framework-agnostic engine) | `src/swarm/` |
 | `sections/Experience.swarm.ts` (section + its build script) | `src/sections/` |
+| the project page (not named in the handoff) | `src/project/`, one component for the route now and the overlay later |
 | `content/` (typed content, Zod) | `content/` at the repo root, shared with the API |
 | `api/` (Express agent service, milestone 6) | `api/` at the repo root |
 
-`@/*` resolves to `src/*`. Nothing resolves to `content/` yet; add an alias when the first content file lands.
+`@/*` resolves to `src/*` and `@content/*` to `content/*`. Shared pieces (buttons, the section grid, stats) live in `src/styles/ui.module.css`; tokens and element rules in `src/styles/tokens.css`.
+
+The content schema has one field the handoff's does not: `card`, the featured card's own tag, text and chips, which differ from the project page's wording in the prototype.
 
 The prototype's code says "case study" (`.cs-*` classes, the `CASE STUDY` script) for what the handoff and the UI call the "project page".
 
@@ -72,9 +86,11 @@ Next.js 16.4 with `cacheComponents` and `partialPrefetching` on (`next.config.ts
 
 - **No route segment configs.** `revalidate`, `dynamic`, `fetchCache` and `runtime` exports are errors. "Revalidate once a day" for the GitHub contribution calendar becomes a `"use cache"` function with `cacheLife("days")`. See `02-guides/migrating-to-cache-components.md`.
 - **Uncached or request-time data must be inside `"use cache"` or behind `<Suspense>`**, or the route fails the blocking-route validation. See `01-getting-started/08-caching.md`.
+- **Never put page content behind `<Suspense>`, even when its data is cached.** Content behind a boundary is prerendered as a late chunk that a script reveals, so it vanishes with JavaScript off and breaks the first rule above. Cached data awaited with no boundary prerenders inline. The GitHub panel in `Now.tsx` is the example.
+- **`/work/[slug]` sets `ensureStatic = "navigation"` and `instant = false`.** The first makes an unknown slug wait for the render so `notFound()` returns a real 404 instead of a 200 fallback shell (`dynamicParams` is not supported). The second tells the dev validation that reading `params` with no boundary is intended.
 - **`dynamic(..., { ssr: false })` is only allowed in a Client Component.** The handoff loads the engine this way from the layout; the call has to live in a client wrapper. See `02-guides/lazy-loading.md`.
 - **Routes stay mounted but hidden on client navigation** (React `<Activity>`), and their effects are cleaned up and re-run. Every rAF loop, observer and listener the engine starts must stop in effect cleanup and restart safely. This matters most for the project-page overlay. See `02-guides/preserving-ui-state.md`.
-- **The inline `<head>` scripts** (the `js` class and the theme read from `localStorage`): see `02-guides/preventing-flash-before-hydration.md`.
+- **The inline `<head>` scripts** (the `js` class and the theme read from `localStorage`): see `02-guides/preventing-flash-before-hydration.md`. In development React logs "Encountered a script tag" when the layout re-renders on the client, for example on a 404. That is expected and does not happen in production.
 
 Doc paths are relative to `node_modules/next/dist/docs/01-app/`.
 

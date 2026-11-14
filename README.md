@@ -12,6 +12,8 @@ Next.js (App Router) and TypeScript, CSS Modules, content in typed files validat
 
 Requires Node 20.9 or newer and pnpm.
 
+Copy `.env.example` to `.env.local` and add a GitHub token. It is only used to read the public contribution calendar; without it that panel is hidden.
+
 ```bash
 pnpm install
 pnpm dev         # http://localhost:3000
