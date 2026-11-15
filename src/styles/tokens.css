@@ -16,6 +16,8 @@
   --ai: #ffac41; /* ai agent */
   --ok: #3ddc84; /* status only */
   --on-agent: #000000; /* text on cursor name tags and size badges */
+  --agent-edge: #000000; /* the cursor arrow's outline, the same in both themes */
+  --agent-shadow: rgba(0, 0, 0, 0.6);
   --pop-bg: #0f0f11;
   --glass: rgba(11, 11, 12, 0.86);
 
@@ -59,6 +61,10 @@ html {
 
 body {
   margin: 0;
+  /* The swarm layer is positioned against the body, so the body has to span the
+     document, including on a page shorter than the screen. */
+  position: relative;
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--f-body);

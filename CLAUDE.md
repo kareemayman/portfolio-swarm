@@ -15,7 +15,7 @@ Kareem Ayman's portfolio. Three agent cursors (`fe`, `be`, `ai`) build each sect
 
 Build one milestone at a time in the order of handoff section 13, and stop for review after each one.
 
-Current milestone: **1, static site: built, waiting for Kareem's review and the Vercel deploy.** Update this line when a milestone is approved.
+Current milestone: **2, engine core, in progress on `feat/swarm-engine`.** That branch is stacked on `feat/static-site`, which holds milestone 1 and is still waiting for Kareem's review and the Vercel deploy. Done in milestone 2 so far: the swarm layer, the three cursors and idle mouse follow. Update this line as work lands.
 
 Milestone 1 deliberately leaves these for the milestone that owns them:
 
@@ -65,6 +65,7 @@ The prototype's code says "case study" (`.cs-*` classes, the `CASE STUDY` script
 
 - **Content first, animation second.** Every section is a server component that renders its final text with `data-b` attributes. The swarm only reveals what is already in the HTML. Hidden build states are CSS attribute selectors (`.js [data-b="text"]:not(.on)` and so on) that apply only while the `js` class is on `<html>`, set by an inline script in `<head>` and removed on any early script error.
 - **The engine does not know React.** `src/swarm/` holds agents, abortable actions (`move`, `box`, `type`, ...) and a `Runner` that queues sections from an `IntersectionObserver`. A client `SwarmLayer` mounts it; each section registers its script with `useSwarmSection(key, script, rootRef)`.
+- **The layer covers the document and clips.** `#swarm` is positioned against `<body>` with `inset: 0` and `overflow: clip`, not `height: 0` as the handoff says. A zero-height layer lets a cursor that hangs past the end of the page make the document taller, so following the mouse at the bottom would scroll forever. A position inside the layer is still a document coordinate.
 - **Every action is abortable and speed-scaled.** Actions take a token and reject with an `ABORT` sentinel when it dies (Skip, Replay, opening a project page). Every duration is divided by `speed()`.
 - **Project pages are one view on two routes.** `/work/[slug]` renders the page for direct visits; the intercepting route shows the same content as an overlay with its own runner.
 - **One content source.** `content/` feeds the page, the project pages, the agent's knowledge base and the scripted fallback.

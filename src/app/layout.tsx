@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Merriweather, Raleway, Space_Mono } from "next/font/google";
 import { profile } from "@content/profile";
 import { THEME_KEY } from "@/components/theme";
+import { SwarmLayer } from "@/swarm/SwarmLayer";
 import "@/styles/tokens.css";
+import "@/styles/swarm.css";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -53,7 +55,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <SwarmLayer />
+      </body>
     </html>
   );
 }

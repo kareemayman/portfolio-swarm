@@ -1,0 +1,46 @@
+/* The swarm layer and everything the engine draws in it. The engine creates plain
+   DOM with plain class names, so this file is global and scoped under #swarm. */
+
+/* Covers the whole document, so a position inside it is a document coordinate.
+   It clips, because a cursor hanging past the end of the page would otherwise
+   make the page taller, and following the mouse at the bottom would let the
+   visitor scroll forever. */
+#swarm {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  z-index: 50;
+  pointer-events: none;
+}
+
+#swarm .agent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+#swarm .agent svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  filter: drop-shadow(0 2px 6px var(--agent-shadow));
+}
+
+#swarm .agent svg path {
+  fill: var(--c);
+  stroke: var(--agent-edge);
+  stroke-width: 1.2;
+}
+
+#swarm .tagname {
+  position: absolute;
+  left: 16px;
+  top: 20px;
+  white-space: nowrap;
+  background: var(--c);
+  color: var(--on-agent);
+  font: 700 11px/1 var(--f-mono);
+  padding: 5px 7px;
+  border-radius: 4px 10px 10px 10px;
+}
