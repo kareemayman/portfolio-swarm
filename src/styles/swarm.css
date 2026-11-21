@@ -57,6 +57,53 @@
   animation: swarm-ripple 0.5s ease-out forwards;
 }
 
+/* The rectangle an agent drags out to build a box: corner handles and a size badge. */
+#swarm .draft-box {
+  position: absolute;
+  border: 1px solid var(--c);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--c) 9%, transparent);
+}
+
+#swarm .draft-box b {
+  position: absolute;
+  right: -1px;
+  bottom: -24px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  background: var(--c);
+  color: var(--on-agent);
+  font: 700 10.5px/1 var(--f-mono);
+  font-variant-numeric: tabular-nums; /* after `font`, which would reset it */
+  white-space: nowrap;
+}
+
+#swarm .draft-box.handles::before,
+#swarm .draft-box.handles::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--c);
+  background: var(--bg);
+}
+
+#swarm .draft-box.handles::before {
+  left: -4px;
+  top: -4px;
+}
+
+#swarm .draft-box.handles::after {
+  right: -4px;
+  bottom: -4px;
+}
+
+/* An overlay on its way out. Important, so it wins over an entry animation still running. */
+#swarm .fade-out {
+  opacity: 0 !important;
+  transition: opacity 0.35s;
+}
+
 @keyframes swarm-ripple {
   from {
     transform: scale(0.2);

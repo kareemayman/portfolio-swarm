@@ -13,6 +13,12 @@ export function overlay(a: Agent, className: string): HTMLDivElement {
   return el;
 }
 
+/** Fades an overlay out, then removes it. */
+export function fadeOut(el: HTMLElement): void {
+  el.classList.add("fade-out");
+  setTimeout(() => el.remove(), 400); // the transition in swarm.css takes 350ms
+}
+
 /** Shows a click: a ring in the agent's color that grows from the cursor's tip and fades. */
 export function click(a: Agent): void {
   const ring = overlay(a, "ripple");

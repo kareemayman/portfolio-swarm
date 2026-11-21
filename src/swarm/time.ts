@@ -59,3 +59,8 @@ export function animate(ms: number, T: Token, step: (progress: number) => void):
     requestAnimationFrame(frame);
   });
 }
+
+/** Like `animate`, but eased out: quick at first, settling gently at the end. */
+export function tween(ms: number, T: Token, step: (eased: number) => void): Promise<void> {
+  return animate(ms, T, (p) => step(1 - Math.pow(1 - p, 3)));
+}
