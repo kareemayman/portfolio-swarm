@@ -1,5 +1,5 @@
 import type { Agent } from "../agents";
-import { docRect, rendered } from "../dom";
+import { docRect, lockSize, rendered, unlockSize } from "../dom";
 import { fadeOut, overlay } from "../overlay";
 import { animate, type Token } from "../time";
 import { move } from "./move";
@@ -44,8 +44,8 @@ export async function type(
   const final = docRect(el);
   if (draft) el.classList.add("draft");
   const r = docRect(el);
-  el.style.minHeight = `${Math.max(final.h, r.h)}px`;
-  if (!draft && getComputedStyle(el).display !== "inline") el.style.minWidth = `${final.w}px`;
+  const lockWidth = !draft && getComputedStyle(el).display !== "inline";
+  lockSize(el, Math.max(final.h, r.h), lockWidth ? final.w : undefined);
 
   const caret = document.createElement("span");
   caret.className = "swarm-caret";
@@ -98,11 +98,8 @@ export async function type(
     caret.remove();
     if (sel) fadeOut(sel);
     for (const [node, text] of nodes) if (node.nodeValue !== text) node.nodeValue = text;
-    // With `keep`, the next action or the runner releases the locks (and the draft class).
-    if (!keep) {
-      el.style.minHeight = "";
-      el.style.minWidth = "";
-    }
+    // With `keep`, the next action or the runner releases the lock (and the draft class).
+    if (!keep) unlockSize(el);
   }
 }
 

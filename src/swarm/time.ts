@@ -14,18 +14,29 @@ export const ABORT = Symbol("swarm abort");
 export type Token = { dead: boolean };
 
 let userSpeed = 1;
+let boost: (() => number) | null = null;
 
 /** The visitor's pick in the control bar: 1 or 2. */
 export function setSpeed(value: number): void {
   userSpeed = value;
 }
 
+/** Lets the runner that is building add its boost. */
+export function setBoost(source: () => number): void {
+  boost = source;
+}
+
+/** Removes a boost, unless another runner has set its own since. */
+export function clearBoost(source: () => number): void {
+  if (boost === source) boost = null;
+}
+
 /**
- * How many times faster than normal the swarm works. The runner adds its boost here
- * later (handoff section 6): faster on project pages and while sections are queued.
+ * How many times faster than normal the swarm works: the visitor's pick times the
+ * runner's boost, which is higher on project pages and while sections are queued.
  */
 export function speed(): number {
-  return userSpeed;
+  return userSpeed * (boost?.() ?? 1);
 }
 
 /** Waits `ms` at normal speed, then rejects with ABORT if the token died meanwhile. */

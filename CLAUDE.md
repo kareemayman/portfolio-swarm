@@ -15,7 +15,7 @@ Kareem Ayman's portfolio. Three agent cursors (`fe`, `be`, `ai`) build each sect
 
 Build one milestone at a time in the order of handoff section 13, and stop for review after each one.
 
-Current milestone: **2, engine core, in progress on `feat/swarm-engine`.** Milestone 1 is merged into `main`. Done in milestone 2 so far: the swarm layer, the three cursors and idle mouse follow; the abort token, `speed()`, `move` and the click ripple; `box`; `type`. Update this line as work lands.
+Current milestone: **2, engine core, in progress on `feat/swarm-engine`.** Milestone 1 is merged into `main`. Done in milestone 2 so far: the swarm layer, the three cursors and idle mouse follow; the abort token, `speed()`, `move` and the click ripple; `box`; `type`; the `Runner` (not mounted on the page yet). Update this line as work lands.
 
 Milestone 1 deliberately leaves these for the milestone that owns them:
 
@@ -67,6 +67,7 @@ The prototype's code says "case study" (`.cs-*` classes, the `CASE STUDY` script
 - **The engine does not know React.** `src/swarm/` holds agents, abortable actions (`move`, `box`, `type`, ...) and a `Runner` that queues sections from an `IntersectionObserver`. A client `SwarmLayer` mounts it; each section registers its script with `useSwarmSection(key, script, rootRef)`.
 - **The layer covers the document and clips.** `#swarm` is positioned against `<body>` with `inset: 0` and `overflow: clip`, not `height: 0` as the handoff says. A zero-height layer lets a cursor that hangs past the end of the page make the document taller, so following the mouse at the bottom would scroll forever. A position inside the layer is still a document coordinate, as long as `<body>` starts at the top of the document. That is why it is `display: flow-root`: without it, a first child's top margin collapses through `<body>` and draws every cursor and overlay that much too low.
 - **Every action is abortable and speed-scaled.** Actions take a token and reject with an `ABORT` sentinel when it dies (Skip, Replay, opening a project page). Every duration is divided by `speed()`.
+- **Actions clean up after themselves.** When its token dies, `type` puts the element's full text back before the next paint, so the runner keeps no copy of the original text (the handoff's capture-once map). Size locks go through `lockSize`/`unlockSize`, so finishing a section releases only the engine's own locks and restores any `min-height` the page set.
 - **Project pages are one view on two routes.** `/work/[slug]` renders the page for direct visits; the intercepting route shows the same content as an overlay with its own runner.
 - **One content source.** `content/` feeds the page, the project pages, the agent's knowledge base and the scripted fallback.
 
