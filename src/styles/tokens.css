@@ -62,7 +62,10 @@ html {
 body {
   margin: 0;
   /* The swarm layer is positioned against the body, so the body has to span the
-     document, including on a page shorter than the screen. */
+     document, including on a page shorter than the screen. It must also start at the
+     very top: flow-root stops a first child's top margin from collapsing through the
+     body and pushing the layer, and everything drawn in it, down by that margin. */
+  display: flow-root;
   position: relative;
   min-height: 100dvh;
   background: var(--bg);
