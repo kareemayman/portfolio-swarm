@@ -1,7 +1,7 @@
 import { Project } from "../schema";
 import { chatService } from "./chat-service";
+import { meetusDashboard } from "./meetus-dashboard";
 import { meetusvr } from "./meetusvr";
-import { merchantDashboard } from "./merchant-dashboard";
 import { skillswap } from "./skillswap";
 import { taskify } from "./taskify";
 import { tseppas } from "./tseppas";
@@ -15,7 +15,7 @@ export const projects: Project[] = [
   typeBeatBeast,
   vantage,
   meetusvr,
-  merchantDashboard,
+  meetusDashboard,
   yumazing,
   skillswap,
   chatService,

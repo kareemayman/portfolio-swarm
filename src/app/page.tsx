@@ -43,7 +43,7 @@ export default function Home() {
         <span>
           {profile.name} · {profile.contact.where}
         </span>
-        <span>Built by three agents and one engineer</span>
+        <span>Built by Kareem Ayman</span>
       </footer>
     </div>
   );

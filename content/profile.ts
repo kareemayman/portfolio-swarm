@@ -30,7 +30,7 @@ const data: ProfileInput = {
         when: "2025 – 2026",
         role: "Frontend developer → lead",
         where: "MeetusVR",
-        what: "Made the Tseppas store 70% faster, built its checkout, gift cards and Saudi localization, and started its move to Next.js 14. Built a no-code theme builder for the merchant dashboard.",
+        what: "Made the Tseppas store 70% faster, built its checkout, gift cards and Saudi localization, and started its move to Next.js 14. Built a no-code theme builder for the Meetus dashboard.",
       },
       {
         when: "Mar – Aug 2025",
@@ -93,7 +93,7 @@ const data: ProfileInput = {
     music: {
       big: "770k+",
       bigNote: "views on my beats on YouTube",
-      title: "I make hip-hop beats",
+      title: "I make music",
       text: "About 1,000 beats on my channel, one upload a day. Type Beat Beast started as a way to automate that routine.",
     },
     programming: {

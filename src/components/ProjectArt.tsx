@@ -156,7 +156,7 @@ function store(slug: string, H: number, v: Shot, col: string) {
   );
 }
 
-/** Merchant dashboard: a sidebar and the theme editor's stacked sections. */
+/** Meetus dashboard: a sidebar and the theme editor's stacked sections. */
 function dashboard(H: number, v: Shot, col: string) {
   const fx = W * 0.3;
   const fw = W * 0.66;
@@ -418,7 +418,7 @@ function scene(slug: string, H: number, v: Shot, col: string) {
     case "tseppas":
     case "yumazing":
       return store(slug, H, v, col);
-    case "merchant-dashboard":
+    case "meetus-dashboard":
       return dashboard(H, v, col);
     case "vantage":
       return tours(H, v, col);

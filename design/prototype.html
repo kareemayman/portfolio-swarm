@@ -453,7 +453,7 @@ body{transition:background-color .2s}
       <div class="tr" data-p>
         <span class="td-when" data-b="text">2025 – 2026</span>
         <span class="td-role"><b data-b="text">Frontend developer → lead</b><span data-b="text">MeetusVR</span></span>
-        <span class="td-what" data-b="text">Made the Tseppas store 70% faster, built its checkout, gift cards and Saudi localization, and started its move to Next.js 14. Built a no-code theme builder for the merchant dashboard.</span>
+        <span class="td-what" data-b="text">Made the Tseppas store 70% faster, built its checkout, gift cards and Saudi localization, and started its move to Next.js 14. Built a no-code theme builder for the Meetus dashboard.</span>
       </div>
       <div class="tr" data-p>
         <span class="td-when" data-b="text">Mar – Aug 2025</span>
@@ -634,7 +634,7 @@ const PROJECTS = [
     nodes: [["pages", "Pages", "React", 18, 50, "fe"], ["layout", "Layout system", "phone → desktop", 52, 24, "fe"], ["anim", "Scroll animations", "reveal on enter", 52, 76, "fe"], ["site", "meetusvr.com", "production", 86, 50, "ink"]],
     edges: [["pages", "layout"], ["pages", "anim"], ["layout", "site"], ["anim", "site"]],
     shots: ["Homepage", "Mobile layout", "Scroll animation"], link: ["Visit meetusvr.com", "https://meetusvr.com/"] },
-  { id: "dashboard", title: "Merchant dashboard", kind: "Internal tool · Web", ctx: "MeetusVR", when: "2025 – 2026", layer: "fe", layers: ["fe"], lock: true,
+  { id: "dashboard", title: "Meetus dashboard", kind: "Internal tool · Web", ctx: "MeetusVR", when: "2025 – 2026", layer: "fe", layers: ["fe"], lock: true,
     role: "Frontend developer", stack: ["React", "Redux", "MUI", "JSS", "Axios"], url: "dashboard · confidential",
     line: "A Shopify-style theme builder, no code needed",
     sum: "The admin side of the platform, including a Shopify-style theme builder so staff can edit a live store without code.",
@@ -1500,7 +1500,7 @@ const SRC = { cv: "resume.pdf", tseppas: "work/tseppas", dash: "work/dashboard",
   taskify: "work/taskify", process: "notes/workflow", contact: "contact" };
 const QA = [
   { re: /meetus|tseppas|previous job|last job|experience|career|work history/i, open: "tseppas", tools: [["search_portfolio", "meetusvr", "3 sources"], ["open_project", "tseppas", "project page ready"]],
-    a: "At MeetusVR he started as a frontend developer and went on to lead the frontend team [1]. On Tseppas he made the store 70% faster, built the checkout, gift cards and Saudi localization, and started the move to Next.js 14 [2]. He also built a no-code theme builder for the merchant dashboard [3].", src: ["cv", "tseppas", "dash"] },
+    a: "At MeetusVR he started as a frontend developer and went on to lead the frontend team [1]. On Tseppas he made the store 70% faster, built the checkout, gift cards and Saudi localization, and started the move to Next.js 14 [2]. He also built a no-code theme builder for the Meetus dashboard [3].", src: ["cv", "tseppas", "dash"] },
   { re: /backend|back-end|node|express|mongo|\bapi\b|server|full.?stack/i, tools: [["search_portfolio", "backend experience", "4 sources"]],
     a: "Yes, and backend is the newer half of his stack. Taskify runs on his own Express API with JWT auth [1]. Type Beat Beast drives YouTube and BeatStars uploads from Node [2]. At MeetusVR he fixed a chat service's WebSocket layer [3]. He's building with Node, Express and MongoDB now [4].", src: ["taskify", "beast", "chat", "cv"] },
   { re: /\bai\b|llm|gemini|claude|agent|machine learning|\bml\b|codex/i, tools: [["search_portfolio", "ai experience", "3 sources"]],

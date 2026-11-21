@@ -199,7 +199,7 @@ Project-page sections and their builders:
 | Results | 3 numbers with captions | one per agent, counting up |
 | Next | "Next project: Tseppas →" | fe |
 
-Media rules: MP4 + WebM, muted, `loop`, `playsInline`, `preload="metadata"`, a poster image, and play only while visible. Confidential projects (Merchant dashboard, Chat service) show illustrative art and say so in the caption.
+Media rules: MP4 + WebM, muted, `loop`, `playsInline`, `preload="metadata"`, a poster image, and play only while visible. Confidential projects (Meetus dashboard, Chat service) show illustrative art and say so in the caption.
 
 ## 8. The agent console
 
@@ -269,7 +269,7 @@ const Project = z.object({
 });
 ```
 
-Copy the 9 projects from the prototype's `PROJECTS` array into `content/projects/*.ts`, in this order: Tseppas, Type Beat Beast, Vantage, MeetusVR.com, Merchant dashboard, Yumazing, SkillSwap, Chat service, Taskify. Also create `content/profile.ts` (hero, proof numbers, experience rows, the "Right now" items, stack, outside work, contact) from the prototype's markup.
+Copy the 9 projects from the prototype's `PROJECTS` array into `content/projects/*.ts`, in this order: Tseppas, Type Beat Beast, Vantage, MeetusVR.com, Meetus dashboard, Yumazing, SkillSwap, Chat service, Taskify. Also create `content/profile.ts` (hero, proof numbers, experience rows, the "Right now" items, stack, outside work, contact) from the prototype's markup.
 
 ## 10. Accessibility and performance
 

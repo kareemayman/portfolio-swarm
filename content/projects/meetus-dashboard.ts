@@ -1,8 +1,8 @@
 import type { ProjectInput } from "../schema";
 
-export const merchantDashboard: ProjectInput = {
-  slug: "merchant-dashboard",
-  title: "Merchant dashboard",
+export const meetusDashboard: ProjectInput = {
+  slug: "meetus-dashboard",
+  title: "Meetus dashboard",
   kind: "Internal tool · Web",
   context: "MeetusVR",
   when: "2025 – 2026",
