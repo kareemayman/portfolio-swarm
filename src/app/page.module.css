@@ -1,0 +1,11 @@
+.foot {
+  border-top: 1px solid var(--line-2);
+  margin-top: 60px;
+  padding-block: 22px 110px;
+  font: 400 11.5px/1.6 var(--f-mono);
+  color: var(--ink-3);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
