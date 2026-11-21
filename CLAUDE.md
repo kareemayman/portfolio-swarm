@@ -15,7 +15,7 @@ Kareem Ayman's portfolio. Three agent cursors (`fe`, `be`, `ai`) build each sect
 
 Build one milestone at a time in the order of handoff section 13, and stop for review after each one.
 
-Current milestone: **2, engine core, in progress on `feat/swarm-engine`.** Milestone 1 is merged into `main`. Done in milestone 2 so far: the swarm layer, the three cursors and idle mouse follow; the abort token, `speed()`, `move` and the click ripple; `box`. Update this line as work lands.
+Current milestone: **2, engine core, in progress on `feat/swarm-engine`.** Milestone 1 is merged into `main`. Done in milestone 2 so far: the swarm layer, the three cursors and idle mouse follow; the abort token, `speed()`, `move` and the click ripple; `box`; `type`. Update this line as work lands.
 
 Milestone 1 deliberately leaves these for the milestone that owns them:
 

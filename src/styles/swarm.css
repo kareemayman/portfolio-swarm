@@ -98,6 +98,44 @@
   bottom: -4px;
 }
 
+/* The outline around an element an agent is typing, with the agent's name on a tab. */
+#swarm .sel {
+  position: absolute;
+  border: 1.5px solid var(--c);
+  border-radius: 3px;
+}
+
+#swarm .sel span {
+  position: absolute;
+  left: -1.5px;
+  top: -21px;
+  padding: 4px 6px;
+  border-radius: 3px 3px 0 0;
+  background: var(--c);
+  color: var(--on-agent);
+  font: 700 10px/1 var(--f-mono);
+  white-space: nowrap;
+}
+
+/* The caret that types text back in. It sits in the page's own text, not in #swarm.
+   The negative right margin cancels its width, so it never wraps a line sooner than
+   the finished text would. */
+.swarm-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin: 0 -3px 0 1px;
+  vertical-align: -0.12em;
+  background: var(--c);
+  animation: swarm-blink 0.8s steps(1) infinite;
+}
+
+@keyframes swarm-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
 /* An overlay on its way out. Important, so it wins over an entry animation still running. */
 #swarm .fade-out {
   opacity: 0 !important;
