@@ -18,6 +18,8 @@ export type Agent = {
   /** Where the cursor rests relative to the visitor's pointer. */
   offset: readonly [x: number, y: number];
   el: HTMLElement;
+  /** The swarm layer, which holds the cursor and everything it draws. */
+  layer: HTMLElement;
   set(x: number, y: number): void;
 };
 
@@ -52,6 +54,7 @@ export function createAgents(layer: HTMLElement): Agent[] {
       index,
       offset: spec.offset,
       el,
+      layer,
       set(x, y) {
         agent.x = x;
         agent.y = y;

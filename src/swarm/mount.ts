@@ -3,7 +3,7 @@ import { startIdle } from "./idle";
 
 /**
  * Puts the swarm on the page: creates the three cursors in `layer` and starts the
- * idle loop. Returns a function that removes everything it added.
+ * idle loop. Returns a function that stops the loop and empties the layer.
  */
 export function mountSwarm(layer: HTMLElement): () => void {
   const agents = createAgents(layer);
@@ -15,6 +15,6 @@ export function mountSwarm(layer: HTMLElement): () => void {
 
   return () => {
     stopIdle();
-    for (const agent of agents) agent.el.remove();
+    layer.replaceChildren(); // the cursors, and any overlay still on screen
   };
 }

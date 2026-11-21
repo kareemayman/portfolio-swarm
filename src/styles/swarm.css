@@ -17,6 +17,7 @@
   position: absolute;
   left: 0;
   top: 0;
+  z-index: 1; /* above everything the agents draw */
   will-change: transform;
 }
 
@@ -43,4 +44,26 @@
   font: 700 11px/1 var(--f-mono);
   padding: 5px 7px;
   border-radius: 4px 10px 10px 10px;
+}
+
+/* A click: a ring in the agent's color that grows from the cursor's tip and fades. */
+#swarm .ripple {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 2px solid var(--c);
+  border-radius: 50%;
+  animation: swarm-ripple 0.5s ease-out forwards;
+}
+
+@keyframes swarm-ripple {
+  from {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
 }
