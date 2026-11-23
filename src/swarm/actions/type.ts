@@ -1,7 +1,7 @@
 import type { Agent } from "../agents";
 import { docRect, lockSize, rendered, unlockSize } from "../dom";
 import { fadeOut, overlay } from "../overlay";
-import { animate, type Token } from "../time";
+import { animate, speed, type Token } from "../time";
 import { move } from "./move";
 
 export type TypeOptions = {
@@ -14,15 +14,21 @@ export type TypeOptions = {
   keep?: boolean;
 };
 
-// 60 characters a second, and never longer than 1.3s for one element. That is the
-// prototype's pace on a 60Hz screen; it typed per frame, so faster screens typed faster.
-const CHARS_PER_SECOND = 60;
-const MAX_MS = 1300;
+// 120 characters a second and never longer than 0.65s for one element: the prototype's
+// pace on Kareem's 120Hz screen, which he prefers to the handoff's 220ms to 1300ms. The
+// prototype typed a step per frame, so at 60Hz it went half as fast; this doesn't.
+const CHARS_PER_SECOND = 120;
+const MAX_MS = 650;
+
+// The cursor glides after the caret instead of landing on it every frame, so fast text
+// and line wraps read as one motion. Each frame it closes the gap with this time constant
+// (about 95% of it within three), divided by speed() like every other duration.
+const GLIDE_MS = 20;
 
 /**
  * Types an element's text back in. A selection outline with the agent's name appears,
  * the text empties and returns character by character behind a caret in the agent's
- * color, and the cursor follows the caret. Every text node is typed in order, so nested
+ * color, and the cursor glides after the caret. Every text node is typed in order, so nested
  * markup such as <b> or <kbd> survives. The element gets `.on` as typing starts.
  *
  * If the token dies mid-way, the full text is back before the next paint.
@@ -74,6 +80,15 @@ export async function type(
       total += text.length;
     }
 
+    // Moves the cursor part of the way to (x, y), by how much time passed since last frame.
+    let then = performance.now();
+    const follow = (x: number, y: number) => {
+      const now = performance.now();
+      const k = 1 - Math.exp(-((now - then) * speed()) / GLIDE_MS);
+      then = now;
+      a.set(a.x + (x - a.x) * k, a.y + (y - a.y) * k);
+    };
+
     // Shows the first `count` characters, with the caret after the last one.
     const show = (count: number) => {
       let last = 0;
@@ -86,14 +101,13 @@ export async function type(
       if (!after) return;
       if (caret.previousSibling !== after) after.after(caret);
       const c = caret.getBoundingClientRect();
-      if (c.height) a.set(c.right + scrollX + 3, c.bottom + scrollY - 3);
+      if (c.height) follow(c.right + scrollX + 3, c.bottom + scrollY - 3);
     };
 
     show(0);
     el.classList.add("on");
-    await animate(Math.min(MAX_MS, (total / CHARS_PER_SECOND) * 1000), T, (p) =>
-      show(Math.ceil(p * total)),
-    );
+    const ms = Math.min(MAX_MS, (total / CHARS_PER_SECOND) * 1000);
+    await animate(ms, T, (p) => show(Math.ceil(p * total)));
   } finally {
     caret.remove();
     if (sel) fadeOut(sel);
