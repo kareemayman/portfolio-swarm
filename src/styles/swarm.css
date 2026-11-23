@@ -118,6 +118,76 @@
   white-space: nowrap;
 }
 
+/* Ruler guides: the vertical one an agent drags in to line things up, with its position
+   on a label, and the line an agent runs along under the nav. */
+#swarm .guide {
+  position: absolute;
+  background: var(--c);
+  opacity: 0.85;
+}
+
+#swarm .guide.v {
+  width: 1px;
+}
+
+#swarm .guide.h {
+  height: 1px;
+}
+
+#swarm .guide span {
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  font: 700 10px/1 var(--f-mono);
+  color: var(--c);
+  white-space: nowrap;
+}
+
+/* A popover an agent opens, such as the font picker. The highlighted option is in the
+   agent's color. */
+#swarm .pop {
+  position: absolute;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--pop-bg);
+  box-shadow: 0 16px 40px var(--pop-shadow);
+  font: 400 12px/1 var(--f-mono);
+  color: var(--ink-2);
+  animation: swarm-popin 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#swarm .pop .opt {
+  padding: 7px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+#swarm .pop .opt.hi {
+  background: var(--c);
+  color: var(--on-agent);
+}
+
+@keyframes swarm-popin {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+/* The real font coming in after the draft one: font() adds this for a moment. */
+.swarm-swap {
+  animation: swarm-swap 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes swarm-swap {
+  from {
+    filter: blur(6px);
+    opacity: 0.3;
+    transform: scale(0.98);
+  }
+}
+
 /* The caret that types text back in. It sits in the page's own text, not in #swarm.
    Its negative margins leave it no size in the layout. The right one cancels its width,
    so it never wraps a line sooner than the finished text would. The top and bottom ones

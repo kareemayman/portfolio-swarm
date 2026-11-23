@@ -19,6 +19,7 @@
   --agent-edge: #000000; /* the cursor arrow's outline, the same in both themes */
   --agent-shadow: rgba(0, 0, 0, 0.6);
   --pop-bg: #0f0f11;
+  --pop-shadow: rgba(0, 0, 0, 0.6); /* under the agents' popovers, the same in both themes */
   --glass: rgba(11, 11, 12, 0.86);
 
   /* The --font-* variables are set on <html> by next/font in the root layout. */
