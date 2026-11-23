@@ -34,6 +34,23 @@ export type Section = {
 
 export type SectionState = "pending" | "queued" | "building" | "built";
 
+/** Where the runner stands, for the control bar. */
+export type RunnerStatus = {
+  /**
+   * False until start() has heard where the sections are, and again after stop(). In
+   * between, a section in view is about to be queued, so "nothing building" would be wrong.
+   */
+  running: boolean;
+  /** How many sections are registered. None means there is nothing on this page to build. */
+  sections: number;
+  /** The name of the section being built. */
+  building: string | null;
+  /** How many sections wait their turn. */
+  queued: number;
+  /** Every registered section is built. */
+  done: boolean;
+};
+
 export type RunnerOptions = {
   /** The swarm layer, cleared of overlays when a build stops. */
   layer: HTMLElement;
@@ -67,6 +84,8 @@ export class Runner {
   private token: Token = { dead: true };
   private io: IntersectionObserver | null = null;
   private running = false;
+  /** Whether the observer has reported where the sections are since start(). */
+  private placed = false;
 
   constructor(options: RunnerOptions) {
     this.options = options;
@@ -109,10 +128,12 @@ export class Runner {
    */
   start(): void {
     this.running = true;
+    this.placed = false;
     setBoost(this.pace);
     document.addEventListener("focusin", this.onFocus);
     this.observe();
     this.revealFocus(document.activeElement); // tabbed in before the swarm started
+    this.changed();
   }
 
   /** Stops building. The section mid-build is finished at once; the rest wait. */
@@ -168,8 +189,10 @@ export class Runner {
   }
 
   /** What the control bar shows. */
-  get status(): { building: string | null; queued: number; done: boolean } {
+  get status(): RunnerStatus {
     return {
+      running: this.running && this.placed,
+      sections: this.sections.size,
       building: this.current ? (this.sections.get(this.current)?.name ?? null) : null,
       queued: this.queue.length,
       done: [...this.sections.values()].every((s) => s.state === "built"),
@@ -230,6 +253,7 @@ export class Runner {
   private observe(): void {
     this.io ??= new IntersectionObserver(
       (entries) => {
+        this.placed = true;
         // Sections that come into view together build from the top down.
         entries.sort((a, b) => documentOrder(a.target, b.target));
         for (const entry of entries) {
@@ -242,6 +266,7 @@ export class Runner {
             this.finishNow(key);
           }
         }
+        this.changed(); // the first report says the runner is going, even with nothing in view
       },
       { rootMargin: ROOT_MARGIN },
     );

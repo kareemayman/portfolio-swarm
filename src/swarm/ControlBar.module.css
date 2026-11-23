@@ -1,0 +1,94 @@
+/* Fixed at the bottom right, above the cursors. The footer's bottom padding leaves it room. */
+.bar {
+  position: fixed;
+  z-index: 60;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100vw - 32px);
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font: 400 11.5px/1 var(--f-mono);
+}
+
+/* The status gives way first when the bar runs out of room, ending in an ellipsis. */
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 8px 0 6px;
+  color: var(--ink-2);
+}
+
+.status span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status i {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.busy i {
+  animation: blink 0.7s steps(1) infinite;
+}
+
+.done i {
+  background: var(--ok);
+}
+
+.sep {
+  flex: none;
+  width: 1px;
+  height: 18px;
+  background: var(--line);
+}
+
+.speeds {
+  display: contents;
+}
+
+.bar button {
+  flex: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: none;
+  color: var(--ink-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.bar button:hover {
+  color: var(--ink);
+  background: var(--s2);
+}
+
+.bar button[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--ink);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .speeds {
+    display: none;
+  }
+}

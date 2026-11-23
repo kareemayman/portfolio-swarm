@@ -1,29 +1,58 @@
 import { createAgents, type Agent } from "./agents";
 import { startIdle } from "./idle";
-import { Runner } from "./runner";
+import { Runner, type RunnerStatus } from "./runner";
 import { followSections, SWARM_READY, type SectionScript } from "./sections";
+import { setSpeed } from "./time";
 
 type Scripts = Record<string, SectionScript>;
 
+/** What the control bar shows: where the build stands, and the visitor's speed. */
+export type SwarmStatus = RunnerStatus & { speed: number };
+
+/** What the control bar reads and does. */
+export type Controls = {
+  /** The same object until something in it changes, as useSyncExternalStore expects. */
+  status(): SwarmStatus;
+  /** Calls `listener` whenever the status changes. Returns the unsubscribe. */
+  subscribe(listener: () => void): () => void;
+  /** 1 or 2. */
+  setSpeed(speed: number): void;
+  /** Shows every section built at once. */
+  skip(): void;
+  /** Takes every section back to unbuilt and builds again from the top. */
+  replay(): void;
+};
+
+export type Swarm = {
+  /** Null when there is nothing to build, because the page already shows in full. */
+  controls: Controls | null;
+  /** Stops it all and empties the layer. */
+  unmount(): void;
+};
+
 /**
  * Puts the swarm on the page: creates the three cursors in `layer`, starts the idle
- * loop and the runner that builds the registered sections with their `scripts`. Returns
- * a function that stops it all and empties the layer.
+ * loop and the runner that builds the registered sections with their `scripts`.
  */
-export function mountSwarm(layer: HTMLElement, scripts: Scripts): () => void {
+export function mountSwarm(layer: HTMLElement, scripts: Scripts): Swarm {
   const agents = createAgents(layer);
-
-  // Start just below the viewport, so the cursors drift in instead of popping up.
-  agents.forEach((agent, i) => agent.set(innerWidth - 120 - i * 30, scrollY + innerHeight + 30));
-
+  placeBelow(agents);
   const stopIdle = startIdle(agents);
-  const stopBuilding = startBuilding(layer, agents, scripts);
+  const building = startBuilding(layer, agents, scripts);
 
-  return () => {
-    stopBuilding();
-    stopIdle();
-    layer.replaceChildren(); // the cursors, and any overlay still on screen
+  return {
+    controls: building?.controls ?? null,
+    unmount() {
+      building?.stop();
+      stopIdle();
+      layer.replaceChildren(); // the cursors, and any overlay still on screen
+    },
   };
+}
+
+/** Just below the viewport, so the cursors drift in instead of popping up. */
+function placeBelow(agents: Agent[]): void {
+  agents.forEach((agent, i) => agent.set(innerWidth - 120 - i * 30, scrollY + innerHeight + 30));
 }
 
 /**
@@ -31,12 +60,33 @@ export function mountSwarm(layer: HTMLElement, scripts: Scripts): () => void {
  * <html> nothing is hidden, because the head script gave up waiting or reduced motion
  * took it away, so there is nothing to build.
  */
-function startBuilding(layer: HTMLElement, agents: Agent[], scripts: Scripts): () => void {
-  if (!document.documentElement.classList.contains("js")) return () => {};
+function startBuilding(
+  layer: HTMLElement,
+  agents: Agent[],
+  scripts: Scripts,
+): { controls: Controls; stop(): void } | null {
+  if (!document.documentElement.classList.contains("js")) return null;
   // From here on the swarm reveals the page, so the head script stops watching over it.
   document.dispatchEvent(new Event(SWARM_READY));
 
-  const runner = new Runner({ layer, agents });
+  let speed = 1;
+  setSpeed(speed);
+  let snapshot: SwarmStatus | undefined;
+  const listeners = new Set<() => void>();
+  const runner = new Runner({ layer, agents, onChange: publish });
+
+  function read(): SwarmStatus {
+    return { ...runner.status, speed };
+  }
+
+  function publish(): void {
+    const next = read();
+    const keys = Object.keys(next) as (keyof SwarmStatus)[];
+    if (snapshot && keys.every((k) => next[k] === snapshot![k])) return;
+    snapshot = next;
+    for (const listener of listeners) listener();
+  }
+
   const stopFollowing = followSections({
     add(key) {
       const roots = [...document.querySelectorAll<HTMLElement>(`[data-swarm="${CSS.escape(key)}"]`)];
@@ -54,11 +104,39 @@ function startBuilding(layer: HTMLElement, agents: Agent[], scripts: Scripts): (
     if (!stopped) timer = window.setTimeout(() => runner.start(), 350);
   });
 
-  return () => {
-    stopped = true;
-    clearTimeout(timer);
-    stopFollowing();
-    runner.stop();
+  const controls: Controls = {
+    status: () => (snapshot ??= read()),
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    setSpeed(next) {
+      speed = next;
+      setSpeed(next);
+      publish();
+    },
+    skip: () => runner.skipAll(),
+    replay() {
+      // The runner pauses, so scrolling back up queues nothing early. Then the cursors
+      // come in from below and the build starts over, as on a first visit.
+      runner.stop();
+      runner.resetAll();
+      scrollTo({ top: 0, behavior: "instant" });
+      placeBelow(agents);
+      clearTimeout(timer);
+      timer = window.setTimeout(() => runner.start(), 250);
+    },
+  };
+
+  return {
+    controls,
+    stop() {
+      stopped = true;
+      clearTimeout(timer);
+      stopFollowing();
+      runner.stop();
+      listeners.clear();
+    },
   };
 }
 
