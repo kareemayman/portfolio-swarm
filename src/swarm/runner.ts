@@ -110,12 +110,15 @@ export class Runner {
   start(): void {
     this.running = true;
     setBoost(this.pace);
+    document.addEventListener("focusin", this.onFocus);
     this.observe();
+    this.revealFocus(document.activeElement); // tabbed in before the swarm started
   }
 
   /** Stops building. The section mid-build is finished at once; the rest wait. */
   stop(): void {
     this.running = false;
+    document.removeEventListener("focusin", this.onFocus);
     this.kill();
     this.io?.disconnect();
     this.io = null;
@@ -213,10 +216,7 @@ export class Runner {
     }
     if (T.dead) return; // stopped meanwhile, and kill() has tidied up
     if (broken) {
-      // The script's other parts are still going. Stop them and show the section, then
-      // queue again whatever is in view, since a kill sends the queue back to waiting.
-      this.kill();
-      this.observe();
+      this.finishNow(key); // its other parts are still going
       return;
     }
 
@@ -238,7 +238,9 @@ export class Runner {
           if (entry.isIntersecting) this.enqueue(key);
           // Already scrolled past, as when the page opens at #work: the visitor would
           // never see it build, and the hero's sticky nav would stay hidden.
-          else if (entry.boundingClientRect.bottom < 0) this.finishPending(key);
+          else if (entry.boundingClientRect.bottom < 0 && this.state(key) === "pending") {
+            this.finishNow(key);
+          }
         }
       },
       { rootMargin: ROOT_MARGIN },
@@ -271,11 +273,32 @@ export class Runner {
     section.state = "built";
   }
 
-  /** Finishes a section that is waiting and not yet queued. */
-  private finishPending(key: string): void {
-    if (this.sections.get(key)?.state !== "pending") return;
+  /** Shows one section built at once, whether it was waiting, queued or building. */
+  private finishNow(key: string): void {
+    const section = this.sections.get(key);
+    if (!section || section.state === "built") return;
+    if (this.current === key) {
+      // The kill finishes it and sends the queue back to waiting, so queue again what is in view.
+      this.kill();
+      this.observe();
+      return;
+    }
+    this.queue = this.queue.filter((k) => k !== key);
     this.finish(key);
     this.changed();
+  }
+
+  private readonly onFocus = (e: FocusEvent): void => this.revealFocus(e.target);
+
+  /**
+   * Hidden elements can still take keyboard focus, so a section that does is shown at
+   * once, focus ring and all. A click on something already built leaves the build alone.
+   */
+  private revealFocus(target: EventTarget | null): void {
+    if (!(target instanceof Element) || !target.matches(":focus-visible")) return;
+    for (const [key, section] of this.sections) {
+      if (section.roots.some((root) => root.contains(target))) this.finishNow(key);
+    }
   }
 
   private reset(key: string): void {
