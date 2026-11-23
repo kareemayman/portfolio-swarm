@@ -118,14 +118,15 @@
 }
 
 /* The caret that types text back in. It sits in the page's own text, not in #swarm.
-   The negative right margin cancels its width, so it never wraps a line sooner than
-   the finished text would. */
+   Its negative margins leave it no size in the layout. The right one cancels its width,
+   so it never wraps a line sooner than the finished text would. The top and bottom ones
+   cancel its height, so a line with a tight line-height, like the hero's name, doesn't
+   grow to fit it. It still draws from 0.88em above the baseline to 0.12em below. */
 .swarm-caret {
   display: inline-block;
   width: 2px;
   height: 1em;
-  margin: 0 -3px 0 1px;
-  vertical-align: -0.12em;
+  margin: -0.88em -3px -0.12em 1px;
   background: var(--c);
   animation: swarm-blink 0.8s steps(1) infinite;
 }

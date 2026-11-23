@@ -28,6 +28,8 @@ export function unlockSize(el: Element): void {
   if (!before) return;
   locks.delete(el);
   Object.assign((el as HTMLElement).style, before);
+  // No empty style="" left behind, so a built element matches the server's markup.
+  if (!el.getAttribute("style")) el.removeAttribute("style");
 }
 
 /**
