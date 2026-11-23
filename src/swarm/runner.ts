@@ -1,9 +1,28 @@
-import type { Agent } from "./agents";
+import type { Agent, AgentKey } from "./agents";
 import { unlockSize } from "./dom";
 import { ABORT, clearBoost, setBoost, type Token } from "./time";
 
-/** A section's build: the actions its agents run, all holding the same token. */
-export type Script = (T: Token) => Promise<void>;
+/** The three agents by key, as a script destructures them: `{ fe, be, ai }`. */
+export type Crew = Record<AgentKey, Agent>;
+
+/**
+ * A section's build: the actions its agents run, all holding the same token. It gets
+ * the section's roots in document order.
+ */
+export type Script = (T: Token, crew: Crew, roots: HTMLElement[]) => Promise<void>;
+
+/**
+ * Runs one agent's part of a script, then frees that agent to follow the mouse again
+ * while the others are still building. A part that was stopped frees nobody: the runner
+ * already has, and another build may be using the agent by the time the part notices.
+ */
+export async function track(a: Agent, T: Token, part: () => Promise<void>): Promise<void> {
+  try {
+    await part();
+  } finally {
+    if (!T.dead) a.busy = false;
+  }
+}
 
 export type Section = {
   /** How the control bar names it while it builds, as in "building experience table". */
@@ -39,16 +58,19 @@ const QUEUE_BOOST = 1.9;
  */
 export class Runner {
   private readonly options: RunnerOptions;
+  private readonly crew: Crew;
   private readonly sections = new Map<string, Section & { state: SectionState }>();
   private readonly triggers = new Map<Element, string>();
   private queue: string[] = [];
   private current: string | null = null;
-  private token: Token = { dead: false };
+  /** The build in progress holds it. Each build gets a fresh one. */
+  private token: Token = { dead: true };
   private io: IntersectionObserver | null = null;
   private running = false;
 
   constructor(options: RunnerOptions) {
     this.options = options;
+    this.crew = Object.fromEntries(options.agents.map((a) => [a.key, a])) as Crew;
   }
 
   /** Registers a section. It waits, unbuilt, until its trigger scrolls into view. */
@@ -116,7 +138,6 @@ export class Runner {
    */
   kill(): void {
     this.token.dead = true;
-    this.token = { dead: false };
     if (this.current) this.finish(this.current);
     for (const key of this.queue) {
       const section = this.sections.get(key);
@@ -181,13 +202,23 @@ export class Runner {
     this.current = key;
     section.state = "building";
     this.changed();
-    const T = this.token;
+    const T: Token = { dead: false };
+    this.token = T;
+    let broken = false;
     try {
-      await section.script(T);
+      await section.script(T, this.crew, section.roots);
     } catch (e) {
-      if (e !== ABORT) console.error(e); // a broken script still leaves a built section
+      if (e !== ABORT) console.error(e);
+      broken = true;
     }
-    if (T !== this.token) return; // stopped meanwhile, and kill() has tidied up
+    if (T.dead) return; // stopped meanwhile, and kill() has tidied up
+    if (broken) {
+      // The script's other parts are still going. Stop them and show the section, then
+      // queue again whatever is in view, since a kill sends the queue back to waiting.
+      this.kill();
+      this.observe();
+      return;
+    }
 
     this.finish(key);
     this.current = null;
@@ -199,9 +230,15 @@ export class Runner {
   private observe(): void {
     this.io ??= new IntersectionObserver(
       (entries) => {
+        // Sections that come into view together build from the top down.
+        entries.sort((a, b) => documentOrder(a.target, b.target));
         for (const entry of entries) {
           const key = this.triggers.get(entry.target);
-          if (key && entry.isIntersecting) this.enqueue(key);
+          if (!key) continue;
+          if (entry.isIntersecting) this.enqueue(key);
+          // Already scrolled past, as when the page opens at #work: the visitor would
+          // never see it build, and the hero's sticky nav would stay hidden.
+          else if (entry.boundingClientRect.bottom < 0) this.finishPending(key);
         }
       },
       { rootMargin: ROOT_MARGIN },
@@ -234,6 +271,13 @@ export class Runner {
     section.state = "built";
   }
 
+  /** Finishes a section that is waiting and not yet queued. */
+  private finishPending(key: string): void {
+    if (this.sections.get(key)?.state !== "pending") return;
+    this.finish(key);
+    this.changed();
+  }
+
   private reset(key: string): void {
     const section = this.sections.get(key);
     if (!section) return;
@@ -257,6 +301,12 @@ export class Runner {
   private changed(): void {
     this.options.onChange?.();
   }
+}
+
+/** Sorts elements by where they come in the document. */
+function documentOrder(a: Element, b: Element): number {
+  if (a === b) return 0;
+  return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
 }
 
 /** A section's roots and everything inside them marked with data-b. */
