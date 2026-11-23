@@ -1,5 +1,6 @@
-/* The swarm layer and everything the engine draws in it. The engine creates plain
-   DOM with plain class names, so this file is global and scoped under #swarm. */
+/* The swarm layer and everything the engine draws in it, then the build states that
+   keep a section hidden until the swarm builds it. The engine creates plain DOM with
+   plain class names, so this file is global, and what it draws is scoped under #swarm. */
 
 /* Covers the whole document, so a position inside it is a document coordinate.
    It clips, because a cursor hanging past the end of the page would otherwise
@@ -152,4 +153,26 @@
     transform: scale(1.4);
     opacity: 0;
   }
+}
+
+/* Build states. A section the swarm builds marks its roots with data-swarm. Inside
+   them, every element marked data-b stays hidden until the swarm gives it .on, and
+   hidden only ever means invisible, so nothing moves when it appears. They apply only
+   while <html> has the js class, which the head script in the layout adds, and takes
+   away again if the swarm fails to start. */
+.js :is([data-swarm], [data-swarm] *)[data-b="text"]:not(.on) {
+  visibility: hidden;
+}
+
+.js :is([data-swarm], [data-swarm] *)[data-b="box"]:not(.on) {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+.js :is([data-swarm], [data-swarm] *)[data-b="box"]:not(.on) > :not([data-b]) {
+  visibility: hidden;
+}
+
+.js :is([data-swarm], [data-swarm] *)[data-b="line"]:not(.on) {
+  border-bottom-color: transparent;
 }

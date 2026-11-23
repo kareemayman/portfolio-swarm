@@ -2,11 +2,13 @@ import { profile } from "@content/profile";
 import { cx } from "@/lib/cx";
 import ui from "@/styles/ui.module.css";
 import styles from "./Hero.module.css";
+import { SwarmSection } from "./SwarmSection";
 
 export function Hero() {
   const { hero, name } = profile;
   return (
-    <header className={styles.hero}>
+    <header className={styles.hero} data-swarm="hero">
+      <SwarmSection section="hero" />
       <span className={styles.pill} data-b="box">
         <i />
         <span data-b="text">{hero.status}</span>

@@ -4,9 +4,10 @@ import { cx } from "@/lib/cx";
 import ui from "@/styles/ui.module.css";
 import styles from "./Nav.module.css";
 
+// The swarm builds the nav as part of the hero section (see Hero.swarm.ts).
 export function Nav() {
   return (
-    <nav className={styles.nav} aria-label="Main" data-b="line">
+    <nav className={styles.nav} aria-label="Main" data-swarm="hero" data-b="line">
       <span className={styles.logo} data-b="text">
         {profile.logo}
       </span>

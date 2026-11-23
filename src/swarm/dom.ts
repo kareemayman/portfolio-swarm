@@ -1,5 +1,16 @@
 /* Where page elements are, for the actions that point at them. */
 
+/**
+ * The first element inside `root` that matches `selector`, for scripts. It throws when
+ * there is none, so a script that no longer fits its markup fails loudly, and the runner
+ * still finishes the section.
+ */
+export function pick(root: ParentNode, selector: string): HTMLElement {
+  const el = root.querySelector<HTMLElement>(selector);
+  if (!el) throw new Error(`swarm: nothing matches ${selector}`);
+  return el;
+}
+
 /** A box in document coordinates. */
 export type Rect = { x: number; y: number; w: number; h: number };
 

@@ -3,9 +3,9 @@
 import { useEffect, useRef } from "react";
 
 /**
- * The only place React touches the swarm. It renders the empty layer and, after
- * first paint, loads the engine and hands it the layer. The engine is a separate
- * chunk, so the page never waits for it and is complete without it.
+ * Where React mounts the swarm. It renders the empty layer and, after first paint, loads
+ * the engine with the sections' scripts and hands it the layer. They are a separate
+ * chunk, so the page never waits for them and is complete without them.
  */
 export function SwarmLayer() {
   const layer = useRef<HTMLDivElement>(null);
@@ -23,10 +23,17 @@ export function SwarmLayer() {
       const mine = ++generation;
       unmount?.();
       unmount = undefined;
-      if (reduced.matches) return; // reduced motion: no cursors at all
+      if (reduced.matches) {
+        // Reduced motion: no cursors, and every section shows built. Stopping the runner
+        // finished the section it was building; the rest were never touched.
+        document.documentElement.classList.remove("js");
+        return;
+      }
 
-      const { mountSwarm } = await import("./mount");
-      if (mine === generation) unmount = mountSwarm(el);
+      // The engine and every script in one go: once the swarm takes the page over, nothing
+      // a hidden section needs is still downloading.
+      const { mount } = await import("@/sections/swarm");
+      if (mine === generation) unmount = mount(el);
     };
 
     void sync();
