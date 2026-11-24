@@ -1,0 +1,77 @@
+/* Time in the swarm. Every action runs against a token that can stop it, and every
+   duration is divided by speed(). */
+
+/**
+ * What an action rejects with once its token has died. The runner expects it, so it
+ * is a signal to stop, not an error.
+ */
+export const ABORT = Symbol("swarm abort");
+
+/**
+ * Handed to every action. The runner kills it (sets `dead`) on Skip, on Replay and
+ * when a project page opens, and every action holding it stops at its next frame.
+ */
+export type Token = { dead: boolean };
+
+let userSpeed = 1;
+let boost: (() => number) | null = null;
+
+/** The visitor's pick in the control bar: 1 or 2. */
+export function setSpeed(value: number): void {
+  userSpeed = value;
+}
+
+/** Lets the runner that is building add its boost. */
+export function setBoost(source: () => number): void {
+  boost = source;
+}
+
+/** Removes a boost, unless another runner has set its own since. */
+export function clearBoost(source: () => number): void {
+  if (boost === source) boost = null;
+}
+
+/**
+ * How many times faster than normal the swarm works: the visitor's pick times the
+ * runner's boost, which is higher on project pages and while sections are queued.
+ */
+export function speed(): number {
+  return userSpeed * (boost?.() ?? 1);
+}
+
+/** Waits `ms` at normal speed, then rejects with ABORT if the token died meanwhile. */
+export function sleep(ms: number, T: Token): Promise<void> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => (T.dead ? reject(ABORT) : resolve()), ms / speed());
+  });
+}
+
+/**
+ * Calls `step` once per frame with the progress from 0 to 1, over `ms` at normal
+ * speed. The last call always gets exactly 1. At the first frame after the token
+ * dies it rejects with ABORT and stops calling `step`.
+ */
+export function animate(ms: number, T: Token, step: (progress: number) => void): Promise<void> {
+  const duration = ms / speed();
+  const start = performance.now();
+
+  return new Promise((resolve, reject) => {
+    const frame = (now: number) => {
+      if (T.dead) {
+        reject(ABORT);
+        return;
+      }
+      // A frame's timestamp can be a little earlier than `start`, hence the floor at 0.
+      const progress = duration > 0 ? Math.min(1, Math.max(0, (now - start) / duration)) : 1;
+      step(progress);
+      if (progress < 1) requestAnimationFrame(frame);
+      else resolve();
+    };
+    requestAnimationFrame(frame);
+  });
+}
+
+/** Like `animate`, but eased out: quick at first, settling gently at the end. */
+export function tween(ms: number, T: Token, step: (eased: number) => void): Promise<void> {
+  return animate(ms, T, (p) => step(1 - Math.pow(1 - p, 3)));
+}

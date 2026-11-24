@@ -1,0 +1,254 @@
+/* The swarm layer and everything the engine draws in it, then the build states that
+   keep a section hidden until the swarm builds it. The engine creates plain DOM with
+   plain class names, so this file is global, and what it draws is scoped under #swarm. */
+
+/* Covers the whole document, so a position inside it is a document coordinate.
+   It clips, because a cursor hanging past the end of the page would otherwise
+   make the page taller, and following the mouse at the bottom would let the
+   visitor scroll forever. */
+#swarm {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  z-index: 50;
+  pointer-events: none;
+}
+
+#swarm .agent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1; /* above everything the agents draw */
+  will-change: transform;
+}
+
+#swarm .agent svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  filter: drop-shadow(0 2px 6px var(--agent-shadow));
+}
+
+#swarm .agent svg path {
+  fill: var(--c);
+  stroke: var(--agent-edge);
+  stroke-width: 1.2;
+}
+
+#swarm .tagname {
+  position: absolute;
+  left: 16px;
+  top: 20px;
+  white-space: nowrap;
+  background: var(--c);
+  color: var(--on-agent);
+  font: 700 11px/1 var(--f-mono);
+  padding: 5px 7px;
+  border-radius: 4px 10px 10px 10px;
+}
+
+/* A click: a ring in the agent's color that grows from the cursor's tip and fades. */
+#swarm .ripple {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 2px solid var(--c);
+  border-radius: 50%;
+  animation: swarm-ripple 0.5s ease-out forwards;
+}
+
+/* The rectangle an agent drags out to build a box: corner handles and a size badge. */
+#swarm .draft-box {
+  position: absolute;
+  border: 1px solid var(--c);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--c) 9%, transparent);
+}
+
+#swarm .draft-box b {
+  position: absolute;
+  right: -1px;
+  bottom: -24px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  background: var(--c);
+  color: var(--on-agent);
+  font: 700 10.5px/1 var(--f-mono);
+  font-variant-numeric: tabular-nums; /* after `font`, which would reset it */
+  white-space: nowrap;
+}
+
+#swarm .draft-box.handles::before,
+#swarm .draft-box.handles::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--c);
+  background: var(--bg);
+}
+
+#swarm .draft-box.handles::before {
+  left: -4px;
+  top: -4px;
+}
+
+#swarm .draft-box.handles::after {
+  right: -4px;
+  bottom: -4px;
+}
+
+/* The outline around an element an agent is typing, with the agent's name on a tab. */
+#swarm .sel {
+  position: absolute;
+  border: 1.5px solid var(--c);
+  border-radius: 3px;
+}
+
+#swarm .sel span {
+  position: absolute;
+  left: -1.5px;
+  top: -21px;
+  padding: 4px 6px;
+  border-radius: 3px 3px 0 0;
+  background: var(--c);
+  color: var(--on-agent);
+  font: 700 10px/1 var(--f-mono);
+  white-space: nowrap;
+}
+
+/* Ruler guides: the vertical one an agent drags in to line things up, with its position
+   on a label, and the line an agent runs along under the nav. */
+#swarm .guide {
+  position: absolute;
+  background: var(--c);
+  opacity: 0.85;
+}
+
+#swarm .guide.v {
+  width: 1px;
+}
+
+#swarm .guide.h {
+  height: 1px;
+}
+
+#swarm .guide span {
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  font: 700 10px/1 var(--f-mono);
+  color: var(--c);
+  white-space: nowrap;
+}
+
+/* A popover an agent opens, such as the font picker. The highlighted option is in the
+   agent's color. */
+#swarm .pop {
+  position: absolute;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--pop-bg);
+  box-shadow: 0 16px 40px var(--pop-shadow);
+  font: 400 12px/1 var(--f-mono);
+  color: var(--ink-2);
+  animation: swarm-popin 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#swarm .pop .opt {
+  padding: 7px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+#swarm .pop .opt.hi {
+  background: var(--c);
+  color: var(--on-agent);
+}
+
+@keyframes swarm-popin {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+/* The real font coming in after the draft one: font() adds this for a moment. */
+.swarm-swap {
+  animation: swarm-swap 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes swarm-swap {
+  from {
+    filter: blur(6px);
+    opacity: 0.3;
+    transform: scale(0.98);
+  }
+}
+
+/* The caret that types text back in. It sits in the page's own text, not in #swarm.
+   Its negative margins leave it no size in the layout. The right one cancels its width,
+   so it never wraps a line sooner than the finished text would. The top and bottom ones
+   cancel its height, so a line with a tight line-height, like the hero's name, doesn't
+   grow to fit it. It still draws from 0.88em above the baseline to 0.12em below. */
+.swarm-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin: -0.88em -3px -0.12em 1px;
+  background: var(--c);
+  animation: swarm-blink 0.8s steps(1) infinite;
+}
+
+@keyframes swarm-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* An overlay on its way out. Important, so it wins over an entry animation still running. */
+#swarm .fade-out {
+  opacity: 0 !important;
+  transition: opacity 0.35s;
+}
+
+@keyframes swarm-ripple {
+  from {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Build states. A section the swarm builds marks its roots with data-swarm. Inside
+   them, every element marked data-b stays hidden until the swarm gives it .on. Hidden
+   means transparent, never visibility: hidden or display: none: the text keeps its
+   place, so nothing moves when it appears, and screen readers can still read it.
+   Hidden things let the pointer through. They apply only while <html> has the js class,
+   which the head script in the layout adds, and takes away again if the swarm fails to
+   start. A root marked data-built (built earlier in the session) is left alone. */
+.js :is([data-swarm]:not([data-built]), [data-swarm]:not([data-built]) *) {
+  &[data-b="text"]:not(.on) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &[data-b="box"]:not(.on) {
+    border-color: transparent !important;
+    background: transparent !important;
+    pointer-events: none;
+  }
+
+  &[data-b="box"]:not(.on) > :not([data-b]) {
+    opacity: 0;
+  }
+
+  &[data-b="line"]:not(.on) {
+    border-bottom-color: transparent;
+  }
+}
