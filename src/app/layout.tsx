@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Merriweather, Raleway, Space_Mono } from "next/font/google";
 import { profile } from "@content/profile";
 import { THEME_KEY } from "@/components/theme";
-import { SWARM_READY } from "@/swarm/sections";
+import { BUILT_KEY, SWARM_READY } from "@/swarm/sections";
 import { SwarmLayer } from "@/swarm/SwarmLayer";
 import "@/styles/tokens.css";
 import "@/styles/swarm.css";
@@ -47,8 +47,42 @@ const themeScript = `(function(){try{var t=localStorage.getItem(${JSON.stringify
 // Also before first paint: the js class turns on the build states in swarm.css, which
 // hide what the swarm will build. Not with reduced motion, which shows the page built.
 // If a script fails before the swarm takes over, or it hasn't within 4s, the class goes
-// and the page shows in full.
-const swarmScript = `(function(){var d=document.documentElement;if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("js");var t=setTimeout(show,4000);function show(){d.classList.remove("js");stop()}function stop(){clearTimeout(t);removeEventListener("error",show);removeEventListener("unhandledrejection",show);document.removeEventListener(${JSON.stringify(SWARM_READY)},stop)}addEventListener("error",show);addEventListener("unhandledrejection",show);document.addEventListener(${JSON.stringify(SWARM_READY)},stop)})()`;
+// and the page shows in full. Sections built earlier in the session get data-built as
+// the parser inserts them, which the build states leave alone, so they never paint hidden.
+const swarmScript = `(function () {
+  var d = document.documentElement;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  d.classList.add("js");
+  var t = setTimeout(show, 4000);
+  function show() { d.classList.remove("js"); stop(); }
+  function stop() {
+    clearTimeout(t);
+    removeEventListener("error", show);
+    removeEventListener("unhandledrejection", show);
+    document.removeEventListener(${JSON.stringify(SWARM_READY)}, stop);
+  }
+  addEventListener("error", show);
+  addEventListener("unhandledrejection", show);
+  document.addEventListener(${JSON.stringify(SWARM_READY)}, stop);
+  try {
+    var built = JSON.parse(sessionStorage.getItem(${JSON.stringify(BUILT_KEY)}) || "[]");
+    if (!built.length) return;
+    var mark = function (el) {
+      if (built.indexOf(el.getAttribute("data-swarm")) >= 0) el.setAttribute("data-built", "");
+    };
+    var watch = new MutationObserver(function (records) {
+      records.forEach(function (r) {
+        r.addedNodes.forEach(function (n) {
+          if (n.nodeType !== 1) return;
+          if (n.hasAttribute("data-swarm")) mark(n);
+          n.querySelectorAll("[data-swarm]").forEach(mark);
+        });
+      });
+    });
+    watch.observe(d, { childList: true, subtree: true });
+    document.addEventListener("DOMContentLoaded", function () { watch.disconnect(); });
+  } catch (e) {}
+})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

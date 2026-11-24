@@ -4,10 +4,11 @@ import ui from "@/styles/ui.module.css";
 import styles from "./Hero.module.css";
 import { SwarmSection } from "./SwarmSection";
 
+// The head script may mark the header data-built before hydration (see the layout).
 export function Hero() {
   const { hero, name } = profile;
   return (
-    <header className={styles.hero} data-swarm="hero">
+    <header className={styles.hero} data-swarm="hero" suppressHydrationWarning>
       <SwarmSection section="hero" />
       <span className={styles.pill} data-b="box">
         <i />

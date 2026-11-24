@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { registerSection } from "@/swarm/sections";
 import type { scripts } from "./swarm"; // the type only: the scripts ship with the engine
 
@@ -13,6 +13,7 @@ import type { scripts } from "./swarm"; // the type only: the scripts ship with 
  * inside them until it is built.
  */
 export function SwarmSection({ section }: { section: keyof typeof scripts }) {
-  useEffect(() => registerSection(section), [section]);
+  // Before paint, so a section built earlier in the session never shows hidden.
+  useLayoutEffect(() => registerSection(section), [section]);
   return null;
 }

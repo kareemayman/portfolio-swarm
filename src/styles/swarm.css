@@ -231,22 +231,24 @@
    place, so nothing moves when it appears, and screen readers can still read it.
    Hidden things let the pointer through. They apply only while <html> has the js class,
    which the head script in the layout adds, and takes away again if the swarm fails to
-   start. */
-.js :is([data-swarm], [data-swarm] *)[data-b="text"]:not(.on) {
-  opacity: 0;
-  pointer-events: none;
-}
+   start. A root marked data-built (built earlier in the session) is left alone. */
+.js :is([data-swarm]:not([data-built]), [data-swarm]:not([data-built]) *) {
+  &[data-b="text"]:not(.on) {
+    opacity: 0;
+    pointer-events: none;
+  }
 
-.js :is([data-swarm], [data-swarm] *)[data-b="box"]:not(.on) {
-  border-color: transparent !important;
-  background: transparent !important;
-  pointer-events: none;
-}
+  &[data-b="box"]:not(.on) {
+    border-color: transparent !important;
+    background: transparent !important;
+    pointer-events: none;
+  }
 
-.js :is([data-swarm], [data-swarm] *)[data-b="box"]:not(.on) > :not([data-b]) {
-  opacity: 0;
-}
+  &[data-b="box"]:not(.on) > :not([data-b]) {
+    opacity: 0;
+  }
 
-.js :is([data-swarm], [data-swarm] *)[data-b="line"]:not(.on) {
-  border-bottom-color: transparent;
+  &[data-b="line"]:not(.on) {
+    border-bottom-color: transparent;
+  }
 }

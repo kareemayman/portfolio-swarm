@@ -36,3 +36,9 @@ export function followSections(next: Follower): () => void {
 
 /** The event the engine fires on `document` once it has taken over revealing the page. */
 export const SWARM_READY = "swarm:ready";
+
+/**
+ * The sessionStorage key the page runner remembers built sections under. The head script
+ * reads it too, so a section built earlier in the session never paints hidden.
+ */
+export const BUILT_KEY = "swarm:built";

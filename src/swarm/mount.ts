@@ -1,7 +1,7 @@
 import { createAgents, type Agent } from "./agents";
 import { startIdle } from "./idle";
 import { Runner, type RunnerStatus } from "./runner";
-import { followSections, SWARM_READY, type SectionScript } from "./sections";
+import { BUILT_KEY, followSections, SWARM_READY, type SectionScript } from "./sections";
 import { setSpeed } from "./time";
 
 type Scripts = Record<string, SectionScript>;
@@ -73,7 +73,7 @@ function startBuilding(
   setSpeed(speed);
   let snapshot: SwarmStatus | undefined;
   const listeners = new Set<() => void>();
-  const runner = new Runner({ layer, agents, onChange: publish });
+  const runner = new Runner({ layer, agents, onChange: publish, memory: BUILT_KEY });
 
   function read(): SwarmStatus {
     return { ...runner.status, speed };

@@ -62,6 +62,11 @@ export type RunnerOptions = {
   queueBoost?: boolean;
   /** Called whenever what the control bar shows may have changed. */
   onChange?: () => void;
+  /**
+   * The sessionStorage key to remember built sections under. A section built once in the
+   * session shows built whenever it comes back; Replay forgets them.
+   */
+  memory?: string;
 };
 
 // A section is queued once its trigger is inside the top 82% of the viewport.
@@ -75,6 +80,8 @@ const QUEUE_BOOST = 1.9;
  */
 export class Runner {
   private readonly options: RunnerOptions;
+  /** The sections built this session, kept in sessionStorage under `options.memory`. */
+  private readonly remembered: Set<string>;
   private readonly crew: Crew;
   private readonly sections = new Map<string, Section & { state: SectionState }>();
   private readonly triggers = new Map<Element, string>();
@@ -90,6 +97,7 @@ export class Runner {
   constructor(options: RunnerOptions) {
     this.options = options;
     this.crew = Object.fromEntries(options.agents.map((a) => [a.key, a])) as Crew;
+    this.remembered = new Set(options.memory ? recall(options.memory) : []);
   }
 
   /** Registers a section. It waits, unbuilt, until its trigger scrolls into view. */
@@ -101,6 +109,7 @@ export class Runner {
       this.triggers.set(trigger, key);
       this.io?.observe(trigger);
     }
+    if (this.remembered.has(key)) this.finish(key); // built earlier this session
     this.changed();
   }
 
@@ -294,8 +303,10 @@ export class Runner {
     }
     for (const root of section.roots) {
       for (const caret of root.querySelectorAll(".swarm-caret")) caret.remove();
+      root.setAttribute("data-built", "");
     }
     section.state = "built";
+    this.remember(key, true);
   }
 
   /** Shows one section built at once, whether it was waiting, queued or building. */
@@ -333,7 +344,20 @@ export class Runner {
       el.classList.remove("on", "draft");
       unlockSize(el);
     }
+    for (const root of section.roots) root.removeAttribute("data-built");
     section.state = "pending";
+    this.remember(key, false);
+  }
+
+  private remember(key: string, built: boolean): void {
+    if (!this.options.memory || this.remembered.has(key) === built) return;
+    if (built) this.remembered.add(key);
+    else this.remembered.delete(key);
+    try {
+      sessionStorage.setItem(this.options.memory, JSON.stringify([...this.remembered]));
+    } catch {
+      // Storage can be blocked. Sections are still remembered for as long as the page is.
+    }
   }
 
   // An arrow function, so it keeps one identity for setBoost and clearBoost.
@@ -348,6 +372,16 @@ export class Runner {
 
   private changed(): void {
     this.options.onChange?.();
+  }
+}
+
+/** The section keys remembered under `memory`, or none if there are none or storage is blocked. */
+function recall(memory: string): string[] {
+  try {
+    const keys: unknown = JSON.parse(sessionStorage.getItem(memory) ?? "[]");
+    return Array.isArray(keys) ? keys.filter((k): k is string => typeof k === "string") : [];
+  } catch {
+    return [];
   }
 }
 
