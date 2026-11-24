@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Merriweather, Raleway, Space_Mono } from "next/font/google";
 import { profile } from "@content/profile";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import { THEME_KEY } from "@/components/theme";
 import { BUILT_KEY, SWARM_READY } from "@/swarm/sections";
 import { SwarmLayer } from "@/swarm/SwarmLayer";
+import "lenis/dist/lenis.css";
 import "@/styles/tokens.css";
 import "@/styles/swarm.css";
 
@@ -100,6 +102,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {children}
         <SwarmLayer />
+        <SmoothScroll />
       </body>
     </html>
   );
