@@ -26,7 +26,7 @@ Milestone 1 deliberately leaves these for the milestone that owns them:
 
 ### Planned beyond the handoff
 
-- **Smooth scrolling, with Lenis or something like it.** Kareem asked for this on 2026-11-13; it has no milestone yet. Decide where it goes before the engine work in milestone 2, because it touches the same ground: the engine reads `scrollX`/`scrollY` and uses an `IntersectionObserver`, `html { scroll-behavior: smooth }` and the `#section` links would have to hand over to the library, the nested scrollers (console log, architecture frame, heat grid, project overlay) must be excluded, and it has to switch off under `prefers-reduced-motion`.
+- **Smooth scrolling, with Lenis or something like it.** Kareem asked for this on 2026-11-13. Decided 2026-11-24: it gets its own branch once milestone 2 is merged, before milestone 3. It touches the same ground as the engine: the engine reads `scrollX`/`scrollY` and uses an `IntersectionObserver`, `html { scroll-behavior: smooth }` and the `#section` links would have to hand over to the library, the nested scrollers (console log, architecture frame, heat grid, project overlay) must be excluded, and it has to switch off under `prefers-reduced-motion`.
 
 ## Commands
 
@@ -82,7 +82,7 @@ The prototype's code says "case study" (`.cs-*` classes, the `CASE STUDY` script
 These come from handoff section 2 and are not negotiable.
 
 - Content is server-rendered real HTML. With JavaScript off, every word is visible.
-- No layout shift. Hidden states use `opacity` (with `pointer-events: none`) or `clip-path`, never `display: none`. Not `visibility: hidden` either, though the handoff allows it: like `display: none` it takes the text away from screen readers, and rule 1 says they get the whole page. Lock `min-width` and `min-height` while text types.
+- No layout shift. Hidden states use `opacity` (with `pointer-events: none`) or `clip-path`, never `display: none`. Not `visibility: hidden` either, though the handoff allows it (Kareem's call, 2026-11-23): like `display: none` it takes the text away from screen readers, and rule 1 says they get the whole page. Lock `min-width` and `min-height` while text types.
 - `prefers-reduced-motion: reduce` shows everything built, with no cursors and no control bar.
 - The cursor layer is decorative: `aria-hidden="true"`, `pointer-events: none`, never takes focus.
 - Colors come only from the tokens in handoff section 4. Agent colors appear only on cursors, selection boxes, small role tags and layer dots.
