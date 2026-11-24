@@ -1,6 +1,9 @@
 import type { Agent } from "./agents";
 
-const FRAME = 1000 / 60;
+// The prototype closes a share of the gap each frame, so its cursors keep up twice as
+// fast on a 120Hz screen as on 60Hz. This applies that share every 120th of a second of
+// real time: the prototype's pace on Kareem's 120Hz screen, on any display.
+const FRAME = 1000 / 120;
 
 /**
  * When nothing is being built, the cursors follow the visitor's mouse, each with
@@ -34,8 +37,7 @@ export function startIdle(agents: Agent[]): () => void {
         targetY = scrollY + innerHeight * 0.6 + agent.index * 34;
       }
 
-      // The prototype closes a fixed share of the gap each frame, which assumes 60Hz.
-      // Scaling that share by the real frame time keeps the same speed on any display.
+      // A share of the gap per FRAME, scaled by the real frame time.
       const perFrame = 0.07 + agent.index * 0.025;
       const ease = 1 - Math.pow(1 - perFrame, elapsed / FRAME);
       agent.set(agent.x + (targetX - agent.x) * ease, agent.y + (targetY - agent.y) * ease);
